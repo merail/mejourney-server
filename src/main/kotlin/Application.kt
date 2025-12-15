@@ -1,5 +1,6 @@
-package com.example
+package app.mejourney
 
+import app.mejourney.db.DatabaseFactory
 import io.ktor.server.application.Application
 import io.ktor.server.netty.EngineMain
 
@@ -8,5 +9,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    DatabaseFactory.init(environment)
     configureRouting()
+    configureSerialization()
 }

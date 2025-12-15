@@ -7,6 +7,6 @@ ktor:
 
 mejourney:
   db:
-    path: "/opt/mejourney/data/mejourney.db"
+    path: "/databases/mejourney.db"
   images:
-    path: "/opt/mejourney/images"
+    path: "/images"
