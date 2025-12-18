@@ -4,7 +4,7 @@ import io.ktor.server.application.ApplicationEnvironment
 import java.sql.Connection
 import java.sql.DriverManager
 
-object DatabaseFactory {
+internal object DatabaseFactory {
 
     lateinit var connection: Connection
         private set

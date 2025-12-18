@@ -3,22 +3,21 @@ package app.mejourney.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ContentDto(
+internal data class ContentDto(
+    val id: String,
+    val coverId: String,
     val title: String,
-    val text: String,
+    val body: String,
+    val imagesUrls: List<String> = emptyList(),
 )
 
 @Serializable
-data class CoverDto(
+internal data class CoverDto(
     val id: String,
     val year: Long,
     val country: String,
     val place: String,
     val title: String,
     val description: String,
-)
-
-@Serializable
-data class ImageDto(
-    val reference: String,
+    val imageUrl: String,
 )
