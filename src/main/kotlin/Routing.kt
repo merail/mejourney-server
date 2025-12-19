@@ -49,6 +49,7 @@ internal fun Application.configureRouting() {
                 ?.filter { file ->
                     file.isFile && supportedExtensions.contains(file.extension.lowercase())
                 }
+                ?.sorted()
                 ?.map { "/images/$contentPath/${it.name}" }
                 ?: emptyList()
 
