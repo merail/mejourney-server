@@ -5,7 +5,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.get
+import io.ktor.server.routing.head
+import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import java.io.File
 
@@ -17,6 +20,16 @@ internal fun Application.configureRouting() {
 
     routing {
 
+        route("/health") {
+
+            get {
+                call.respondText("OK")
+            }
+
+            head {
+                call.respond(HttpStatusCode.OK)
+            }
+        }
         staticFiles(
             remotePath = "/images",
             dir = File(imagesPath),

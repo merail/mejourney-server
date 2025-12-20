@@ -36,5 +36,5 @@ out/
 .vscode/
 
 ### Data ###
-*.db
+data/
 images/
