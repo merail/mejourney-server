@@ -18,6 +18,8 @@ internal fun Application.configureRouting() {
         .property("mejourney.images.path")
         .getString()
 
+    val regex = "\\d+".toRegex()
+
     routing {
 
         route("/health") {
@@ -30,6 +32,7 @@ internal fun Application.configureRouting() {
                 call.respond(HttpStatusCode.OK)
             }
         }
+
         staticFiles(
             remotePath = "/images",
             dir = File(imagesPath),
@@ -62,9 +65,14 @@ internal fun Application.configureRouting() {
                 ?.filter { file ->
                     file.isFile && supportedExtensions.contains(file.extension.lowercase())
                 }
-                ?.sorted()
                 ?.map { "/images/$contentPath/${it.name}" }
-                ?: emptyList()
+                ?.sortedWith(
+                    comparator = compareBy { path ->
+                        regex.findAll(path).map {
+                            it.value.toLong()
+                        }.toList().lastOrNull() ?: 0L
+                    },
+                ) ?: emptyList()
 
             call.respond(content.copy(imagesUrls = fileNames))
         }
