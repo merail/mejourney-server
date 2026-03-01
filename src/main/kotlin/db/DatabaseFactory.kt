@@ -16,7 +16,6 @@ internal object DatabaseFactory {
 
         val jdbcUrl = "jdbc:sqlite:$dbPath"
 
-        Class.forName("org.sqlite.JDBC")
         connection = DriverManager.getConnection(jdbcUrl)
     }
 }

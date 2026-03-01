@@ -12,13 +12,14 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import java.io.File
 
+private val imageNumberRegex = "\\d+".toRegex()
+private val supportedImageExtensions = setOf("jpg", "jpeg", "png", "gif", "webp", "heic")
+
 internal fun Application.configureRouting() {
 
     val imagesPath = environment.config
         .property("mejourney.images.path")
         .getString()
-
-    val regex = "\\d+".toRegex()
 
     routing {
 
@@ -59,16 +60,14 @@ internal fun Application.configureRouting() {
 
             val contentImagesDir = File(imagesPath, contentPath)
 
-            val supportedExtensions = listOf("jpg", "jpeg", "png", "gif", "webp", "heic")
-
             val fileNames = contentImagesDir.listFiles()
                 ?.filter { file ->
-                    file.isFile && supportedExtensions.contains(file.extension.lowercase())
+                    file.isFile && file.extension.lowercase() in supportedImageExtensions
                 }
                 ?.map { "/images/$contentPath/${it.name}" }
                 ?.sortedWith(
                     comparator = compareBy { path ->
-                        regex.findAll(path).map {
+                        imageNumberRegex.findAll(path).map {
                             it.value.toLong()
                         }.toList().lastOrNull() ?: 0L
                     },

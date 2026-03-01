@@ -10,19 +10,19 @@ internal object HomeRepository {
 
     private val logger = LoggerFactory.getLogger(HomeRepository::class.java)
 
-    fun getCovers(): List<CoverDto> {
-        val sql = "SELECT * FROM cover"
-        val stmt = DatabaseFactory.connection.createStatement()
-        val rs = stmt.executeQuery(sql)
-
-        val result = mutableListOf<CoverDto>()
-        while (rs.next()) {
-            result += rs.toCoverDto()
+    fun getCovers(): List<CoverDto> = try {
+        DatabaseFactory.connection.createStatement().use { stmt ->
+            stmt.executeQuery("SELECT * FROM cover").use { rs ->
+                val result = mutableListOf<CoverDto>()
+                while (rs.next()) {
+                    result += rs.toCoverDto()
+                }
+                result
+            }
         }
-
-        rs.close()
-        stmt.close()
-        return result
+    } catch (e: Exception) {
+        logger.error("Database error while fetching covers", e)
+        emptyList()
     }
 
     fun getContentByCoverId(coverId: String) = try {
