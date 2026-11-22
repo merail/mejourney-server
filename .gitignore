@@ -42,6 +42,3 @@ images/
 ### Mac OS ###
 .DS_Store
 ._*
-
-### Gradle wrapper ###
-/gradlew
