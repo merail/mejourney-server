@@ -1,0 +1,66 @@
+server {
+    server_name mejourney.duckdns.org;
+
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_http_version 1.1;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /covers {
+        if ($mejourney_allowed = 0) {
+            return 403;
+        }
+
+        limit_req zone=api_light burst=5 nodelay;
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location /content {
+        if ($mejourney_allowed = 0) {
+            return 403;
+        }
+
+        limit_req zone=api_medium burst=10 nodelay;
+        proxy_pass http://127.0.0.1:8080;
+    }
+
+    location /images/ {
+        if ($mejourney_allowed = 0) {
+            return 403;
+        }
+
+        alias /opt/mejourney/images/;
+        access_log off;
+        expires 30d;
+        add_header Cache-Control "public, max-age=2592000, immutable";
+    }
+
+    location /health {
+        proxy_pass http://127.0.0.1:8080;
+        access_log off;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/mejourney.duckdns.org/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/mejourney.duckdns.org/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if ($host = mejourney.duckdns.org) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    server_name mejourney.duckdns.org;
+    return 404; # managed by Certbot
+
+
+}

@@ -1,0 +1,12 @@
+[Unit]
+Description=Mejourney Ktor Backend
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/mejourney/app
+ExecStart=/usr/bin/java -jar mejourney.jar
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target

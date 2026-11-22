@@ -1,0 +1,1 @@
+35 3 * * * root /opt/mejourney/backup_sqlite.sh >> /var/log/sqlite-backups.log 2>&1
