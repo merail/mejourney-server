@@ -38,3 +38,7 @@ out/
 ### Data ###
 data/
 images/
+
+### Mac OS ###
+.DS_Store
+._*
