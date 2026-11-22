@@ -15,6 +15,15 @@ import java.io.File
 private val imageNumberRegex = "\\d+".toRegex()
 private val supportedImageExtensions = setOf("jpg", "jpeg", "png", "gif", "webp", "heic")
 
+internal fun sortImageUrls(urls: List<String>): List<String> =
+    urls.sortedWith(
+        comparator = compareBy { path ->
+            imageNumberRegex.findAll(path).map {
+                it.value.toLong()
+            }.toList().lastOrNull() ?: 0L
+        },
+    )
+
 internal fun Application.configureRouting() {
 
     val imagesPath = environment.config
@@ -65,13 +74,8 @@ internal fun Application.configureRouting() {
                     file.isFile && file.extension.lowercase() in supportedImageExtensions
                 }
                 ?.map { "/images/$contentPath/${it.name}" }
-                ?.sortedWith(
-                    comparator = compareBy { path ->
-                        imageNumberRegex.findAll(path).map {
-                            it.value.toLong()
-                        }.toList().lastOrNull() ?: 0L
-                    },
-                ) ?: emptyList()
+                ?.let(::sortImageUrls)
+                ?: emptyList()
 
             call.respond(content.copy(imagesUrls = fileNames))
         }
