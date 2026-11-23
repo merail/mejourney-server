@@ -1,6 +1,6 @@
 # Server configuration
 
-Configuration for the production VPS (Ubuntu 24.04, `mejourney.duckdns.org`). The VPS also hosts wordme.
+Files from the production VPS (Ubuntu 24.04).
 
 | Repository                               | Server                                    |
 |------------------------------------------|-------------------------------------------|
@@ -9,37 +9,25 @@ Configuration for the production VPS (Ubuntu 24.04, `mejourney.duckdns.org`). Th
 | `nginx/secrets/*.map.example`            | `/etc/nginx/secrets/*.map` (root, `700` dir, `600` files) |
 | `systemd/mejourney.service`              | `/etc/systemd/system/mejourney.service`   |
 | `backup/backup_sqlite.sh`                | `/opt/mejourney/backup_sqlite.sh`         |
-| `backup/sqlite-backups.cron`             | a line in `/etc/cron.d/sqlite-backups`, shared with wordme |
+| `backup/sqlite-backups.cron`             | a line in `/etc/cron.d/sqlite-backups`, shared with another site |
 
 ## Secrets
 
-Token values are never committed. `/etc/nginx/secrets/mejourney-token.map` holds one line in the format of its `.example` file, included by `nginx/conf.d/mejourney.conf`.
+Token values are never committed. Each `/etc/nginx/secrets/*.map` holds one line in the format of its `.example` file.
 
 ## Shared parts of `/etc/nginx/nginx.conf`
 
-Not in the repository, since wordme uses them too:
+Not in the repository, since they are shared with another site on the host:
 
-- `geo $ip_allowed`: requests from `127.0.0.1` pass without `X-Mejourney-Token`.
-- `limit_req_zone ... zone=api_light` (10 r/m per IP) and `zone=api_medium` (60 r/m per IP).
+- a `geo` block that marks trusted source IPs;
+- a shared `limit_req_zone` used by both sites.
 
 ## Access rules
 
 - `/covers`, `/content` and `/images/` return 403 without a valid `X-Mejourney-Token`.
-- `/images/` is served directly by nginx (`alias /opt/mejourney/images/`) with `expires 30d` and immutable `Cache-Control`, not proxied through Ktor.
-- `/covers` uses `api_light` (burst 5); `/content` uses `api_medium` (burst 10).
 - Ktor listens on `127.0.0.1:8080` only, so it is reachable through nginx alone.
 
-## Deploying
-
-```sh
-./gradlew buildFatJar
-scp build/libs/mejourney-server-all.jar wordme:/tmp/
-ssh wordme 'mv /tmp/mejourney-server-all.jar /opt/mejourney/app/mejourney.jar && systemctl restart mejourney'
-```
-
-Check `/health` afterwards.
-
-## Applying nginx changes
+## Applying changes
 
 ```sh
 scp deploy/nginx/conf.d/mejourney.conf wordme:/etc/nginx/conf.d/mejourney.conf
